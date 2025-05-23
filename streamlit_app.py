@@ -2,20 +2,23 @@ import requests
 import streamlit as st
 import openai
 
+# ✅ Acessa chave da OpenAI de forma segura
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
 
-numero_processo = st.text_input("📄 Digite o número do processo (sem pontos/traços):", placeholder="Ex: 00166893519968260625")
+numero_processo = st.text_input(
+    "📄 Digite o número do processo (sem pontos/traços):",
+    placeholder="Ex: 00166893519968260625"
+)
 
 if st.button("Consultar"):
     if numero_processo:
-        # Consulta à API do DataJud
         url = 'https://api-publica.datajud.cnj.jus.br/api_publica_tjsp/_search'
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='  # Substitua aqui
+            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='  # substitua por sua chave real do DataJud
         }
         payload = {
             "query": {
@@ -25,25 +28,28 @@ if st.button("Consultar"):
             }
         }
 
-        response = requests.post(url, headers=headers, json=payload)
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            st.error(f"Erro na requisição ao DataJud: {e}")
+            st.stop()
 
-        if response.status_code == 200:
-            dados = response.json()
+        dados = response.json()
 
-            if dados["hits"]["hits"]:
-                processo = dados["hits"]["hits"][0]["_source"]
+        if dados.get("hits", {}).get("hits"):
+            processo = dados["hits"]["hits"][0]["_source"]
 
-                # Extrai dados principais
-                classe = processo["classe"]["nome"]
-                tribunal = processo["tribunal"]
-                orgao = processo["orgaoJulgador"]["nome"]
-                assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "Não especificado"
-                ajuizamento = processo["dataAjuizamento"][:10]
-                movimentos = processo["movimentos"]
-                ultimos_movs = "\n".join([f"- {m['dataHora'][:10]}: {m['nome']}" for m in movimentos[:5]])
+            # 🧠 Extrai os dados principais
+            classe = processo["classe"]["nome"]
+            tribunal = processo["tribunal"]
+            orgao = processo["orgaoJulgador"]["nome"]
+            assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "Não especificado"
+            ajuizamento = processo["dataAjuizamento"][:10]
+            movimentos = processo.get("movimentos", [])
+            ultimos_movs = "\n".join([f"- {m['dataHora'][:10]}: {m['nome']}" for m in movimentos[:5]])
 
-                # Prompt limpo e claro para o GPT
-                prompt = f"""
+            prompt = f"""
 Você é um assistente jurídico. Com base nos dados abaixo, forneça um resumo claro e técnico do processo judicial.
 
 Número do processo: {numero_processo}
@@ -56,16 +62,17 @@ Data de ajuizamento: {ajuizamento}
 {ultimos_movs}
 """
 
+            try:
                 resposta = client.chat.completions.create(
                     model="gpt-4-0613",
                     messages=[{"role": "user", "content": prompt}]
                 )
-
                 st.subheader("📌 Resumo jurídico do GPT:")
                 st.markdown(resposta.choices[0].message.content)
-            else:
-                st.warning("❌ Nenhum processo encontrado com esse número.")
+            except Exception as e:
+                st.error(f"Erro ao consultar o GPT: {e}")
         else:
-            st.error("❌ Erro ao consultar a API do DataJud. Verifique a chave ou tente mais tarde.")
+            st.warning("❌ Nenhum processo encontrado com esse número.")
     else:
         st.warning("⚠️ Por favor, digite um número de processo válido.")
+
