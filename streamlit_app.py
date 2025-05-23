@@ -20,7 +20,7 @@ TRIBUNAIS = {
 
 def identificar_tribunal(numero_processo):
     if len(numero_processo) >= 20:
-        codigo = numero_processo[13:15]  # Correção aqui!
+        codigo = numero_processo[13:15]  # Correção definitiva
         return TRIBUNAIS.get(codigo)
     return None
 
@@ -33,6 +33,7 @@ numero_processo = st.text_input(
 if st.button("Consultar"):
     if numero_processo:
         tribunal_api = identificar_tribunal(numero_processo)
+        st.write(f"Código do tribunal extraído: {numero_processo[13:15]}")  # Debug
         if not tribunal_api:
             st.error("⚠️ Tribunal não identificado ou não suportado.")
             st.stop()
