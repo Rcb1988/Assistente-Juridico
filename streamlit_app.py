@@ -1,8 +1,4 @@
 import streamlit as st
-import requests
-import json
-import openai
-import streamlit as st
 import openai
 
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
