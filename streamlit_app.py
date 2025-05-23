@@ -2,9 +2,10 @@ import streamlit as st
 import requests
 import json
 import openai
+import streamlit as st
+import openai
 
-# ✅ Cria cliente OpenAI com sua chave (v1)
-client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
