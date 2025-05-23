@@ -4,7 +4,7 @@ import json
 import openai
 
 # ✅ Cria cliente OpenAI com sua chave (v1)
-client = openai.OpenAI(api_key="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")  # Substitua aqui
+client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
