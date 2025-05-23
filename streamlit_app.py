@@ -69,10 +69,6 @@ if st.button("Consultar"):
             orgao = processo["orgaoJulgador"]["nome"]
             assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "Não especificado"
             ajuizamento = processo["dataAjuizamento"][:10]
-            partes = ", ".join([p["nome"] for p in processo.get("partes", [])]) if processo.get("partes") else "Não especificado"
-            natureza = processo.get("instancia", "Não especificado")
-            valor_causa = processo.get("valorCausa", "Não especificado")
-            juiz = processo.get("magistrado", {}).get("nome", "Não especificado")
             status = processo.get("grau", "Não especificado")
             movimentos = processo.get("movimentos", [])
 
@@ -84,10 +80,6 @@ if st.button("Consultar"):
 | **Número do Processo** | {numero_processo} |
 | **Classe Processual** | {classe} |
 | **Tipo de Ação** | {classe} |
-| **Natureza** | {natureza} |
-| **Partes** | {partes} |
-| **Valor da Causa** | {valor_causa} |
-| **Juiz Responsável** | {juiz} |
 | **Status do Processo** | {status} |
 | **Tribunal** | {tribunal} |
 | **Órgão Julgador** | {orgao} |
@@ -107,3 +99,4 @@ if st.button("Consultar"):
             st.warning("❌ Nenhum processo encontrado com esse número.")
     else:
         st.warning("⚠️ Por favor, digite um número de processo válido.")
+
