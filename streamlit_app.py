@@ -2,19 +2,20 @@ import requests
 import streamlit as st
 import openai
 
-# 🔐 Chave da OpenAI via secrets
+# ✅ Acessa chave da OpenAI via secrets
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
 
-# 🔁 Mapeia códigos de tribunais CNJ para nomes no índice da API do DataJud
+# 🗂️ Mapeamento completo dos tribunais estaduais (padrão CNJ)
 TRIBUNAIS = {
-    "01": "tjac", "02": "tjse", "03": "tjal", "04": "tjdf", "05": "tjap", "06": "tjba",
-    "07": "tjce", "08": "tjto", "09": "tjma", "10": "tjmt", "11": "tjms", "12": "tjmg",
-    "13": "tjpr", "14": "tjpb", "15": "tjpa", "16": "tjpe", "17": "tjpi", "18": "tjrn",
-    "19": "tjrs", "20": "tjrj", "21": "tjro", "22": "tjrr", "23": "tjsp", "24": "tjsc",
-    "25": "tjgo", "26": "tjrr", "27": "tjam"
+    "01": "tjac", "02": "tjal", "03": "tjap", "04": "tjam", "05": "tjba",
+    "06": "tjce", "07": "tjdf", "08": "tjes", "09": "tjgo", "10": "tjma",
+    "11": "tjmt", "12": "tjms", "13": "tjmg", "14": "tjpa", "15": "tjpb",
+    "16": "tjpr", "17": "tjpe", "18": "tjpi", "19": "tjrj", "20": "tjrn",
+    "21": "tjrs", "22": "tjro", "23": "tjrr", "24": "tjsc", "25": "tjse",
+    "26": "tjsp", "27": "tjto"
 }
 
 def identificar_tribunal(numero_processo):
@@ -23,17 +24,16 @@ def identificar_tribunal(numero_processo):
         return TRIBUNAIS.get(codigo)
     return None
 
-# 📥 Entrada do número do processo
 numero_processo = st.text_input(
     "📄 Digite o número do processo (sem pontos/traços):",
-    placeholder="Ex: 00166893519968260625"
+    placeholder="Ex: 10252178720218110041"
 )
 
 if st.button("Consultar"):
     if numero_processo:
         tribunal_api = identificar_tribunal(numero_processo)
         if not tribunal_api:
-            st.error("Tribunal não identificado ou não suportado.")
+            st.error("⚠️ Tribunal não identificado ou não suportado.")
             st.stop()
 
         url = f"https://api-publica.datajud.cnj.jus.br/api_publica_{tribunal_api}/_search"
@@ -61,7 +61,7 @@ if st.button("Consultar"):
         if dados.get("hits", {}).get("hits"):
             processo = dados["hits"]["hits"][0]["_source"]
 
-            # 🧠 Extrai os dados principais
+            # 📑 Extrai os dados principais
             classe = processo["classe"]["nome"]
             tribunal = processo["tribunal"]
             orgao = processo["orgaoJulgador"]["nome"]
@@ -96,5 +96,4 @@ Data de ajuizamento: {ajuizamento}
             st.warning("❌ Nenhum processo encontrado com esse número.")
     else:
         st.warning("⚠️ Por favor, digite um número de processo válido.")
-
 
