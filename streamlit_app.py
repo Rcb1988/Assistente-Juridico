@@ -2,13 +2,13 @@ import requests
 import streamlit as st
 import openai
 
-# ✅ Acessa chave da OpenAI via secrets
+# 🔐 Chave da OpenAI via secrets
 client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
 
-# 🗂️ Mapeamento completo dos tribunais estaduais (padrão CNJ)
+# 📚 Mapeamento dos códigos dos Tribunais Estaduais
 TRIBUNAIS = {
     "01": "tjac", "02": "tjal", "03": "tjap", "04": "tjam", "05": "tjba",
     "06": "tjce", "07": "tjdf", "08": "tjes", "09": "tjgo", "10": "tjma",
@@ -20,10 +20,11 @@ TRIBUNAIS = {
 
 def identificar_tribunal(numero_processo):
     if len(numero_processo) >= 20:
-        codigo = numero_processo[16:18]
+        codigo = numero_processo[15:17]  # Corrigido: pega os dígitos do tribunal
         return TRIBUNAIS.get(codigo)
     return None
 
+# 📥 Entrada do número do processo
 numero_processo = st.text_input(
     "📄 Digite o número do processo (sem pontos/traços):",
     placeholder="Ex: 10252178720218110041"
@@ -53,7 +54,7 @@ if st.button("Consultar"):
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            st.error(f"Erro na requisição ao DataJud: {e}")
+            st.error(f"❌ Erro na requisição ao DataJud: {e}")
             st.stop()
 
         dados = response.json()
@@ -61,7 +62,7 @@ if st.button("Consultar"):
         if dados.get("hits", {}).get("hits"):
             processo = dados["hits"]["hits"][0]["_source"]
 
-            # 📑 Extrai os dados principais
+            # 🔍 Extrai informações principais do processo
             classe = processo["classe"]["nome"]
             tribunal = processo["tribunal"]
             orgao = processo["orgaoJulgador"]["nome"]
@@ -96,4 +97,3 @@ Data de ajuizamento: {ajuizamento}
             st.warning("❌ Nenhum processo encontrado com esse número.")
     else:
         st.warning("⚠️ Por favor, digite um número de processo válido.")
-
