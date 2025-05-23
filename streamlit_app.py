@@ -24,7 +24,7 @@ def identificar_tribunal(numero_processo):
         return TRIBUNAIS.get(codigo)
     return None
 
-# 📥 Entrada do número do processo
+# 📅 Entrada do número do processo
 numero_processo = st.text_input(
     "📄 Digite o número do processo (sem pontos/traços):",
     placeholder="Ex: 10252178720218110041"
@@ -69,31 +69,40 @@ if st.button("Consultar"):
             orgao = processo["orgaoJulgador"]["nome"]
             assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "Não especificado"
             ajuizamento = processo["dataAjuizamento"][:10]
+            partes = ", ".join([p["nome"] for p in processo.get("partes", [])]) if processo.get("partes") else "Não especificado"
+            natureza = processo.get("instancia", "Não especificado")
+            valor_causa = processo.get("valorCausa", "Não especificado")
+            juiz = processo.get("magistrado", {}).get("nome", "Não especificado")
+            status = processo.get("grau", "Não especificado")
             movimentos = processo.get("movimentos", [])
-            ultimos_movs = "\n".join([f"- {m['dataHora'][:10]}: {m['nome']}" for m in movimentos[:5]])
 
-            prompt = f"""
-Você é um assistente jurídico. Com base nos dados abaixo, forneça um resumo claro e técnico do processo judicial.
+            markdown_output = f"""
+### 📄 Informações do Processo
 
-Número do processo: {numero_processo}
-Classe: {classe}
-Tribunal: {tribunal}
-Órgão julgador: {orgao}
-Assunto principal: {assunto}
-Data de ajuizamento: {ajuizamento}
-Últimos movimentos:
-{ultimos_movs}
+| Campo | Detalhes |
+|-------|----------|
+| **Número do Processo** | {numero_processo} |
+| **Classe Processual** | {classe} |
+| **Tipo de Ação** | {classe} |
+| **Natureza** | {natureza} |
+| **Partes** | {partes} |
+| **Valor da Causa** | {valor_causa} |
+| **Juiz Responsável** | {juiz} |
+| **Status do Processo** | {status} |
+| **Tribunal** | {tribunal} |
+| **Órgão Julgador** | {orgao} |
+| **Assunto Principal** | {assunto} |
+| **Data de Ajuizamento** | {ajuizamento} |
+
+### 🔍 Últimos Andamentos
+
+| Data | Movimento |
+|------|-----------|
+{''.join([f"| {m['dataHora'][:10]} | {m['nome']} |\n" for m in movimentos[:3]])}
 """
 
-            try:
-                resposta = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                st.subheader("📌 Resumo jurídico do GPT:")
-                st.markdown(resposta.choices[0].message.content)
-            except Exception as e:
-                st.error(f"Erro ao consultar o GPT: {e}")
+            st.subheader("📌 Resumo jurídico do GPT:")
+            st.markdown(markdown_output)
         else:
             st.warning("❌ Nenhum processo encontrado com esse número.")
     else:
