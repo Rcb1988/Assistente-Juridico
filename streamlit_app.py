@@ -4,11 +4,12 @@ import openai
 import json
 
 # Substitua pela sua chave da OpenAI
-openai.api_key = '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'  # Insira sua chave aqui
+openai.api_key = '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'
 
-st.title("Assistente Jurídico com GPT e DataJud")
+st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
+st.title("⚖️ Assistente Jurídico com GPT + DataJud")
 
-numero_processo = st.text_input("Digite o número do processo (ex: 00166893519968260625):")
+numero_processo = st.text_input("📄 Digite o número do processo (sem pontos/traços):", placeholder="Ex: 00166893519968260625")
 
 if st.button("Consultar"):
     if numero_processo:
@@ -16,7 +17,7 @@ if st.button("Consultar"):
         url = 'https://api-publica.datajud.cnj.jus.br/api_publica_tjsp/_search'
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='  # Substitua pela chave válida
+            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='  # Substitua aqui
         }
         payload = {
             "query": {
@@ -25,15 +26,12 @@ if st.button("Consultar"):
                 }
             }
         }
-        response = requests.post(url, headers=headers, json=payload)
 
-        st.write("Status da requisição:", response.status_code)
-        st.write("Resposta da API:", response.text)
+        response = requests.post(url, headers=headers, json=payload)
 
         if response.status_code == 200:
             dados = response.json()
 
-            # Verifica se veio algum processo
             if dados["hits"]["hits"]:
                 processo = dados["hits"]["hits"][0]["_source"]
 
@@ -41,32 +39,35 @@ if st.button("Consultar"):
                 classe = processo["classe"]["nome"]
                 tribunal = processo["tribunal"]
                 orgao = processo["orgaoJulgador"]["nome"]
-                assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "N/A"
-                movimentos = [mov["nome"] for mov in processo["movimentos"][:5]]
+                assunto = processo["assuntos"][0]["nome"] if processo.get("assuntos") else "Não especificado"
+                ajuizamento = processo["dataAjuizamento"][:10]
+                movimentos = processo["movimentos"]
+                ultimos_movs = "\n".join([f"- {m['dataHora'][:10]}: {m['nome']}" for m in movimentos[:5]])
 
-                # Monta prompt limpo
+                # Prompt limpo e claro para o GPT
                 prompt = f"""
-                Resumo do processo {numero_processo}:
+Você é um assistente jurídico. Com base nos dados abaixo, forneça um resumo claro e técnico do processo judicial.
 
-                Classe: {classe}
-                Tribunal: {tribunal}
-                Órgão julgador: {orgao}
-                Assunto: {assunto}
-                Últimos movimentos: {', '.join(movimentos)}
-
-                Com base nessas informações, forneça um resumo jurídico deste processo.
-                """
+Número do processo: {numero_processo}
+Classe: {classe}
+Tribunal: {tribunal}
+Órgão julgador: {orgao}
+Assunto principal: {assunto}
+Data de ajuizamento: {ajuizamento}
+Últimos movimentos:
+{ultimos_movs}
+"""
 
                 resposta = openai.ChatCompletion.create(
                     model="gpt-4-0613",
                     messages=[{"role": "user", "content": prompt}]
                 )
-                st.subheader("📄 Resumo do GPT:")
-                st.write(resposta['choices'][0]['message']['content'])
-            else:
-                st.warning("Nenhum processo encontrado com esse número.")
-        else:
-            st.error("Erro ao consultar o processo.")
-    else:
-        st.warning("Por favor, insira o número do processo.")
 
+                st.subheader("📌 Resumo jurídico do GPT:")
+                st.markdown(resposta['choices'][0]['message']['content'])
+            else:
+                st.warning("❌ Nenhum processo encontrado com esse número.")
+        else:
+            st.error("❌ Erro ao consultar a API do DataJud. Verifique a chave ou tente mais tarde.")
+    else:
+        st.warning("⚠️ Por favor, digite um número de processo válido.")
