@@ -16,7 +16,7 @@ if st.button("Consultar"):
         url = 'https://api-publica.datajud.cnj.jus.br/api_publica_tjsp/_search'
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
+            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
         }
         payload = {
             "query": {
