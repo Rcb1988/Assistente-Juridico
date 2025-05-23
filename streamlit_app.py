@@ -4,11 +4,11 @@ import openai
 import json
 
 # Substitua pela sua chave da OpenAI
-openai.api_key = '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'
+openai.api_key = 'SUA_CHAVE_OPENAI_AQUI'  # Substitua antes de rodar!
 
 st.title("Assistente Jurídico com GPT e DataJud")
 
-numero_processo = st.text_input("Digite o número do processo (ex: 0016689-35.1996.8.26.0625):")
+numero_processo = st.text_input("Digite o número do processo (ex: 00166893519968260625):")
 
 if st.button("Consultar"):
     if numero_processo:
@@ -26,6 +26,11 @@ if st.button("Consultar"):
             }
         }
         response = requests.post(url, headers=headers, json=payload)
+
+        # 🔍 Mostrar detalhes da resposta da API
+        st.write("Status da requisição:", response.status_code)
+        st.write("Resposta da API:", response.text)
+
         if response.status_code == 200:
             dados = response.json()
             # Envia os dados para o GPT
@@ -34,6 +39,7 @@ if st.button("Consultar"):
                 model="gpt-4-0613",
                 messages=[{"role": "user", "content": prompt}]
             )
+            st.write("🔎 Resposta do GPT:")
             st.write(resposta['choices'][0]['message']['content'])
         else:
             st.error("Erro ao consultar o processo.")
