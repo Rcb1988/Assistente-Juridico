@@ -41,7 +41,7 @@ if st.button("Consultar"):
         url = f"https://api-publica.datajud.cnj.jus.br/api_publica_{tribunal_api}/_search"
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': st.secrets["DATAJUD_API_KEY"]
+            Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
         }
         payload = {
             "query": {
