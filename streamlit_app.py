@@ -4,7 +4,7 @@ import openai
 import json
 
 # Substitua pela sua chave da OpenAI
-openai.api_key = 'SUA_CHAVE_OPENAI_AQUI'  # Insira sua chave aqui
+openai.api_key = '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'  # Insira sua chave aqui
 
 st.title("Assistente Jurídico com GPT e DataJud")
 
@@ -16,7 +16,7 @@ if st.button("Consultar"):
         url = 'https://api-publica.datajud.cnj.jus.br/api_publica_tjsp/_search'
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'ApiKey SUA_CHAVE_DATAJUD_AQUI'  # Substitua pela chave válida
+            'Authorization': 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='  # Substitua pela chave válida
         }
         payload = {
             "query": {
