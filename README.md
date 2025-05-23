@@ -1,1 +1,1 @@
-# Assistente-Jur-dico
+# Assistente-Juridico
