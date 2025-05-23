@@ -1,10 +1,10 @@
 import streamlit as st
 import requests
-import openai
 import json
+import openai
 
-# Substitua pela sua chave da OpenAI
-openai.api_key = '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'
+# ✅ Cria cliente OpenAI com sua chave (v1)
+client = openai.OpenAI(api_key="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")  # Substitua aqui
 
 st.set_page_config(page_title="Assistente Jurídico GPT", layout="centered")
 st.title("⚖️ Assistente Jurídico com GPT + DataJud")
@@ -58,13 +58,13 @@ Data de ajuizamento: {ajuizamento}
 {ultimos_movs}
 """
 
-                resposta = openai.ChatCompletion.create(
+                resposta = client.chat.completions.create(
                     model="gpt-4-0613",
                     messages=[{"role": "user", "content": prompt}]
                 )
 
                 st.subheader("📌 Resumo jurídico do GPT:")
-                st.markdown(resposta['choices'][0]['message']['content'])
+                st.markdown(resposta.choices[0].message.content)
             else:
                 st.warning("❌ Nenhum processo encontrado com esse número.")
         else:
