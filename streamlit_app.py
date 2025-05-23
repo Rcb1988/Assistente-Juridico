@@ -64,7 +64,7 @@ Data de ajuizamento: {ajuizamento}
 
             try:
                 resposta = client.chat.completions.create(
-                    model="gpt-4-0613",
+                    model="gpt-4",
                     messages=[{"role": "user", "content": prompt}]
                 )
                 st.subheader("📌 Resumo jurídico do GPT:")
