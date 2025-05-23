@@ -20,7 +20,7 @@ TRIBUNAIS = {
 
 def identificar_tribunal(numero_processo):
     if len(numero_processo) >= 20:
-        codigo = numero_processo[15:17]  # Corrigido: pega os dígitos do tribunal
+        codigo = numero_processo[13:15]  # Correção aqui!
         return TRIBUNAIS.get(codigo)
     return None
 
